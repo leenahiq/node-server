@@ -12,16 +12,19 @@ const capitiliseTitleOfPage = (service) =>
     .map(capitilise)
     .join(" - ");
 
+// const loadTemplate = (template, props) => {};
 const getPage = (service, res) => {
   res.statusCode = 200;
-  // create one file with template
-  // inject content in it
   const template = loadPage("/template");
   const main = loadPage(service);
+  const subNav = service.includes("news") ? loadPage("/nav") : "";
+
   const pageContent = template
+    .replace("{{subNav}}", subNav)
     .replace("{{main}}", main)
     .replace("{{title}}", capitiliseTitleOfPage(service));
   res.end(pageContent);
+
   // res.end(fs.readFileSync(`${__dirname}/pages${service}.html`, "utf8"));
 };
 
