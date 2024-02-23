@@ -12,20 +12,31 @@ const capitiliseTitleOfPage = (service) =>
     .map(capitilise)
     .join(" - ");
 
-// const loadTemplate = (template, props) => {};
+const loadTemplate = (template, props = {}) => {
+  let updatedTemplate = loadPage(template);
+
+  for (const property in props) {
+    updatedTemplate = updatedTemplate.replace(
+      `{{${property}}}`,
+      props[property]
+    );
+  }
+  return updatedTemplate;
+};
+
 const getPage = (service, res) => {
   res.statusCode = 200;
-  const template = loadPage("/template");
-  const main = loadPage(service);
-  const subNav = service.includes("news") ? loadPage("/nav") : "";
+  const main = loadTemplate(service, { date: "12-12-22" });
 
-  const pageContent = template
-    .replace("{{subNav}}", subNav)
-    .replace("{{main}}", main)
-    .replace("{{title}}", capitiliseTitleOfPage(service));
+  const subNav = service.includes("news") ? loadTemplate("/nav") : "";
+
+  const pageContent = loadTemplate("/template", {
+    subNav,
+    main,
+    title: capitiliseTitleOfPage(service),
+  });
+  // console.log(3, pageContent);
   res.end(pageContent);
-
-  // res.end(fs.readFileSync(`${__dirname}/pages${service}.html`, "utf8"));
 };
 
 const isPageExist = (url) => {
