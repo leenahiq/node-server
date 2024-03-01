@@ -13,15 +13,11 @@ const capitiliseTitleOfPage = (service) =>
     .join(" - ");
 
 const loadTemplate = (template, props = {}) => {
-  let updatedTemplate = loadPage(template);
+  const initialValue = loadPage(template);
+  const replacer = (updatedTemplate, property) =>
+    updatedTemplate.replace(`{{${property}}}`, props[property]);
 
-  for (const property in props) {
-    updatedTemplate = updatedTemplate.replace(
-      `{{${property}}}`,
-      props[property]
-    );
-  }
-  return updatedTemplate;
+  return Object.keys(props).reduce(replacer, initialValue);
 };
 
 const getPage = (service, res) => {
