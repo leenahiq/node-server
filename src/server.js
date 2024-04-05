@@ -12,22 +12,42 @@ const capitiliseTitleOfPage = (service) =>
     .map(capitilise)
     .join(" - ");
 
-const loadTemplate = (template, props = {}) => {
-  const initialValue = loadPage(template);
+const findSubTemplates = (template) => {
+  //wait for some magic to happen
+  // regex
+  return ["nav", "copyright"];
+};
+
+const replaceProps = (currentTemplate, props = {}) => {
   const replacer = (updatedTemplate, property) =>
     updatedTemplate.replace(`{{${property}}}`, props[property]);
 
-  return Object.keys(props).reduce(replacer, initialValue);
+  return Object.keys(props).reduce(replacer, currentTemplate);
+};
+
+const replaceSubTemplates = (currentTemplate, subTemplates = []) => {
+  return currentTemplate;
+};
+
+const loadTemplate = (template, props = {}) => {
+  const initialValue = loadPage(template);
+  const subTemplates = findSubTemplates(initialValue);
+  console.log(subTemplates);
+  const templateWithPropsReplaced = replaceProps(props, initialValue);
+  const templateWithSubTemplateReplaced = replaceSubTemplates(
+    subTemplates,
+    templateWithPropsReplaced
+  );
+  return templateWithSubTemplateReplaced;
 };
 
 const getPage = (service, res) => {
   res.statusCode = 200;
   const main = loadTemplate(service, { date: "12-12-22" });
 
-  const subNav = service.includes("news") ? loadTemplate("/nav") : "";
-
+  // const subNav = service.includes("news") ? loadTemplate("/nav") : "";
+  // const nav = loadTemplate("./nav");
   const pageContent = loadTemplate("/template", {
-    subNav,
     main,
     title: capitiliseTitleOfPage(service),
   });
