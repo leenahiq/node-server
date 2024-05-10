@@ -1,7 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 
-const loadPage = (page) =>
+const getTemplateFile = (page) =>
   fs.readFileSync(`${__dirname}/pages${page}.html`, "utf8");
 
 const capitilise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
@@ -32,7 +32,7 @@ const replaceSubTemplates = (currentTemplate, subTemplates = []) => {
   const replacer = (updatedTemplate, subTemplate) => {
     return updatedTemplate.replace(
       `{%${subTemplate}%}`,
-      loadPage(`/${subTemplate}`)
+      getTemplateFile(`/${subTemplate}`)
     );
   };
 
@@ -40,7 +40,7 @@ const replaceSubTemplates = (currentTemplate, subTemplates = []) => {
 };
 
 const loadTemplate = (template, props = {}) => {
-  const initialValue = loadPage(template);
+  const initialValue = getTemplateFile(template);
   const subTemplates = findSubTemplates(initialValue);
   const templateWithPropsReplaced = replaceProps(initialValue, props);
   const templateWithSubTemplateReplaced = replaceSubTemplates(
@@ -51,12 +51,12 @@ const loadTemplate = (template, props = {}) => {
   return templateWithSubTemplateReplaced;
 };
 
-const getPage = (service, res) => {
+const getPage = (route, res) => {
   res.statusCode = 200;
-  const main = loadTemplate(service, { date: "12-12-22" });
+  const main = loadTemplate(route, { date: "12-12-22" });
   const pageContent = loadTemplate("/template", {
     main,
-    title: capitiliseTitleOfPage(service),
+    title: capitiliseTitleOfPage(route),
   });
 
   res.end(pageContent);
