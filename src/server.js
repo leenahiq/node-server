@@ -1,62 +1,15 @@
 const http = require("http");
 const fs = require("fs");
 
-const getTemplateFile = (page) =>
-  fs.readFileSync(`${__dirname}/pages${page}.html`, "utf8");
-
-const capitilise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
-const capitiliseTitleOfPage = (service) =>
-  service
-    .split("/")
-    .filter((item) => item)
-    .map(capitilise)
-    .join(" - ");
-
-const findSubTemplates = (template) => {
-  //wait for some magic to happen
-  const regexp = /{% *([a-z\/]+) *%}/g;
-  const findAllSubTemplate = [...template.matchAll(regexp)];
-  const listOfSubTemplate = findAllSubTemplate.map((item) => item[1]);
-  // console.log("listOfSubTemplate", listOfSubTemplate);
-  return listOfSubTemplate;
-};
-
-const replaceProps = (currentTemplate, props = {}) => {
-  const replacer = (updatedTemplate, property) => {
-    return updatedTemplate.replace(`{{${property}}}`, props[property]);
-  };
-  return Object.keys(props).reduce(replacer, currentTemplate);
-};
-
-const replaceSubTemplates = (currentTemplate, subTemplates = []) => {
-  const replacer = (updatedTemplate, subTemplate) => {
-    return updatedTemplate.replace(
-      `{%${subTemplate}%}`,
-      getTemplateFile(`/${subTemplate}`)
-    );
-  };
-
-  return subTemplates.reduce(replacer, currentTemplate);
-};
-
-const loadTemplate = (template, props = {}) => {
-  const initialValue = getTemplateFile(template);
-  const subTemplates = findSubTemplates(initialValue);
-  const templateWithPropsReplaced = replaceProps(initialValue, props);
-  const templateWithSubTemplateReplaced = replaceSubTemplates(
-    templateWithPropsReplaced,
-    subTemplates
-  );
-
-  return templateWithSubTemplateReplaced;
-};
+const { capitaliseTitleOfPage } = require("./utils/capitalise.js");
+const { loadTemplate } = require("./utils/load-template.js");
 
 const getPage = (route, res) => {
   res.statusCode = 200;
   const main = loadTemplate(route, { date: "12-12-22" });
   const pageContent = loadTemplate("/template", {
     main,
-    title: capitiliseTitleOfPage(route),
+    title: capitaliseTitleOfPage(route),
   });
 
   res.end(pageContent);
