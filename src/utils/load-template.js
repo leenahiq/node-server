@@ -1,7 +1,9 @@
 const fs = require("fs");
 
-const getTemplateFile = (page, folder = "pages") => {
-  return fs.readFileSync(`${__dirname}/../${folder}${page}.html`, "utf8");
+const getTemplateFile = (page) => {
+  const templatePath = process.env.TEMPLATE_PATH || "pages";
+  console.log(templatePath);
+  return fs.readFileSync(`${__dirname}/../${templatePath}${page}.html`, "utf8");
 };
 
 const findSubTemplates = (template) => {
@@ -18,25 +20,24 @@ const replaceProps = (currentTemplate, props = {}) => {
   return Object.keys(props).reduce(replacer, currentTemplate);
 };
 
-const replaceSubTemplates = (currentTemplate, subTemplates = [], folder) => {
+const replaceSubTemplates = (currentTemplate, subTemplates = []) => {
   const replacer = (updatedTemplate, subTemplate) => {
     return updatedTemplate.replace(
       `{%${subTemplate}%}`,
-      loadTemplate(`/${subTemplate}`, {}, folder)
+      loadTemplate(`/${subTemplate}`)
     );
   };
 
   return subTemplates.reduce(replacer, currentTemplate);
 };
 
-const loadTemplate = (template, props = {}, folder) => {
-  const initialValue = getTemplateFile(template, folder);
+const loadTemplate = (template, props = {}) => {
+  const initialValue = getTemplateFile(template);
   const subTemplates = findSubTemplates(initialValue);
   const templateWithPropsReplaced = replaceProps(initialValue, props);
   const templateWithSubTemplateReplaced = replaceSubTemplates(
     templateWithPropsReplaced,
-    subTemplates,
-    folder
+    subTemplates
   );
 
   return templateWithSubTemplateReplaced;
