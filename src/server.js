@@ -11,7 +11,6 @@ const getPage = (route, res) => {
     main,
     title: capitaliseTitleOfPage(route),
   });
-
   res.end(pageContent);
 };
 
